@@ -1183,6 +1183,12 @@ sub find_parent_branch {
 	return undef;
 }
 
+sub do_update_and_check {
+	my $self = shift @_;
+	unless ($self->ra->gs_do_update(@_)) {
+		die "SVN connection failed somewhere...\n";
+	}
+}
 sub do_fetch {
 	my ($self, $paths, $rev) = @_;
 	my $ed;
@@ -1207,8 +1213,13 @@ sub do_fetch {
 		}
 		$ed = Git::SVN::Fetcher->new($self);
 	}
-	unless ($self->ra->gs_do_update($last_rev, $rev, $self, $ed)) {
-		die "SVN connection failed somewhere...\n";
+	eval {
+		$self->do_update_and_check($last_rev, $rev, $self, $ed);
+	};
+	if ($@) {
+		warn "Error in fetch: $@. Retrying...";
+		$ed = Git::SVN::Fetcher->new($self);
+		$self->do_update_and_check($rev, $rev, $self, $ed);
 	}
 	$self->make_log_entry($rev, \@parents, $ed);
 }

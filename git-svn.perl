@@ -127,7 +127,8 @@ my %remote_opts = ( 'username=s' => \$Git::SVN::Prompt::_username,
                     'no-auth-cache' => \$Git::SVN::Prompt::_no_auth_cache,
                     'ignore-paths=s' => \$Git::SVN::Fetcher::_ignore_regex,
                     'include-paths=s' => \$Git::SVN::Fetcher::_include_regex,
-                    'ignore-refs=s' => \$Git::SVN::Ra::_ignore_refs_regex );
+                    'ignore-refs=s' => \$Git::SVN::Ra::_ignore_refs_regex,
+				    'ignore-revisions=s' => \$Git::SVN::Ra::_ignore_revisions);
 my %fc_opts = ( 'follow-parent|follow!' => \$Git::SVN::_follow_parent,
 		'authors-file|A=s' => \$_authors,
 		'authors-prog=s' => \$_authors_prog,

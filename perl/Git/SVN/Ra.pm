@@ -1,5 +1,5 @@
 package Git::SVN::Ra;
-use vars qw/@ISA $config_dir $_ignore_refs_regex $_log_window_size/;
+use vars qw/@ISA $config_dir $_ignore_refs_regex $_log_window_size $_ignore_revisions/;
 use strict;
 use warnings;
 use SVN::Client;
@@ -373,6 +373,13 @@ sub longest_common_path {
 	$longest_path;
 }
 
+sub is_revision_ignored {
+	my ($r) = @_;
+	return 0 unless defined $_ignore_revisions;
+	my %ir = map { $_ => $_ } split ',',$_ignore_revisions;
+	return defined $ir{$r};
+}
+
 sub gs_fetch_loop_common {
 	my ($self, $base, $head, $gsv, $globs) = @_;
 	return if ($base > $head);
@@ -426,6 +433,7 @@ sub gs_fetch_loop_common {
 
 		my %exists = map { $_->path => $_ } @$gsv;
 		foreach my $r (sort {$a <=> $b} keys %revs) {
+			next if is_revision_ignored($r);
 			my ($paths, $logged) = @{$revs{$r}};
 
 			foreach my $gs ($self->match_globs(\%exists, $paths,
